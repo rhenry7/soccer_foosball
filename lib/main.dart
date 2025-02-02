@@ -1,14 +1,16 @@
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flame/components.dart';
 
 void main() {
   runApp(GameWidget(game: PongGame()));
 }
 
-class PongGame extends FlameGame with HasCollisionDetection {
+class PongGame extends FlameGame with HasCollisionDetection, DragCallbacks {
   late Ball ball;
   late Paddle topPaddle;
   late Paddle bottomPaddle;
@@ -86,7 +88,7 @@ class Ball extends PositionComponent with HasGameRef<PongGame> {
   }
 }
 
-class Paddle extends PositionComponent {
+class Paddle extends PositionComponent with DragCallbacks {
   late Paint paint;
 
   Paddle() {
@@ -94,6 +96,10 @@ class Paddle extends PositionComponent {
   }
 
   Rect myRect = const Offset(1.0, 2.0) & const Size(100.0, 10.0);
+
+  /// We will store all current circles into this map, keyed by the `pointerId`
+  /// of the event that created the circle.
+  //final Map<int, Trail> _trails = {};
 
   @override
   void render(Canvas canvas) {
@@ -104,5 +110,39 @@ class Paddle extends PositionComponent {
   @override
   void update(double dt) {
     // Movement logic (can be updated with gestures later)
+  }
+
+  /// We will store all current circles into this map, keyed by the `pointerId`
+  /// of the event that created the circle.
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    this.size = size - Vector2(100, 75);
+    if (this.size.x < 100 || this.size.y < 100) {
+      this.size = size * 0.9;
+    }
+  }
+
+  @override
+  void onDragStart(DragStartEvent event) {
+    super.onDragStart(event);
+    priority = 10;
+  }
+
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    position += event.localDelta;
+  }
+
+  @override
+  void onDragEnd(DragEndEvent event) {
+    super.onDragEnd(event);
+    priority = 0;
+  }
+
+  @override
+  void onDragCancel(DragCancelEvent event) {
+    super.onDragCancel(event);
   }
 }
