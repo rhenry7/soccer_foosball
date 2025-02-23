@@ -27,7 +27,7 @@ class PongGame extends FlameGame
       ..position = Vector2(screenWidth / 2, screenHeight / 2)
       ..size = Vector2(20, 20);
 
-    add(ball);
+    //add(ball);
 
     // Create Top Paddle
     topPaddle = Paddle()
@@ -94,14 +94,15 @@ class Ball extends PositionComponent with HasGameRef<PongGame> {
 class Paddle extends PositionComponent
     with HasGameRef<PongGame>, DragCallbacks {
   late Paint paint;
-
-  // bool debugMode = true;
+  bool debugMode = true;
 
   Paddle() {
     paint = Paint()..color = Colors.white; // Set the paddle color here
   }
 
   Rect myRect = const Offset(1.0, 2.0) & const Size(100.0, 10.0);
+
+  Vector2? dragDeltaPosition;
 
   @override
   void render(Canvas canvas) {
@@ -113,8 +114,12 @@ class Paddle extends PositionComponent
   void onDragUpdate(DragUpdateEvent event) {
     final screenSize = gameRef.size;
     position += event.localDelta;
-    // Bounce off walls
-    if (position.x <= 0 || position.x + size.x >= screenSize.x) {
+    final wallCollision =
+        position.x <= 55 || position.x + (size.x - 4S5) >= screenSize.x;
+
+    // final leftWall = position.y >= 0 || position.y + size.y <= screenSize.y;
+    //  Limit scroll past walls
+    if (wallCollision) {
       position -= event.localDelta;
     }
   }
