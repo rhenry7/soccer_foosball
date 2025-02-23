@@ -30,15 +30,15 @@ class PongGame extends FlameGame
     //add(ball);
 
     // Create Top Paddle
-    topPaddle = Paddle()
-      ..position = Vector2(screenWidth / 2 - 50, 20)
+    topPaddle = TopPaddle()
+      ..position = Vector2(screenWidth / 2, 200)
       ..size = Vector2(100, 20)
       ..anchor = Anchor.center;
     add(topPaddle);
 
     // Create Bottom Paddle
-    bottomPaddle = Paddle()
-      ..position = Vector2(screenWidth / 2 - 50, screenHeight - 40)
+    bottomPaddle = BottomPaddle()
+      ..position = Vector2(screenWidth / 2, screenHeight - 40)
       ..size = Vector2(100, 20)
       ..anchor = Anchor.center;
     add(bottomPaddle);
@@ -114,10 +114,45 @@ class Paddle extends PositionComponent
   void onDragUpdate(DragUpdateEvent event) {
     final screenSize = gameRef.size;
     position += event.localDelta;
+    // final wallCollision =
+    //     position.x <= 55 || position.x + (size.x - 40) >= screenSize.x;
+
+    // final bottomPaddleRange = position.y <= 730 || position.y >= 800;
+
+    // //  Limit scroll past walls
+    // if (wallCollision || bottomPaddleRange) {
+    //   position -= event.localDelta;
+    // }
+  }
+}
+
+class BottomPaddle extends Paddle {
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    final screenSize = gameRef.size;
+    position += event.localDelta;
     final wallCollision =
         position.x <= 55 || position.x + (size.x - 40) >= screenSize.x;
 
     final bottomPaddleRange = position.y <= 730 || position.y >= 800;
+
+    //  Limit scroll past walls
+    if (wallCollision || bottomPaddleRange) {
+      position -= event.localDelta;
+    }
+  }
+}
+
+class TopPaddle extends Paddle {
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    final screenSize = gameRef.size;
+    position += event.localDelta;
+    final wallCollision =
+        position.x <= 55 || position.x + (size.x - 40) >= screenSize.x;
+
+    final bottomPaddleRange =
+        position.y <= 100 || position.y + (size.y + 650) >= screenSize.y;
 
     //  Limit scroll past walls
     if (wallCollision || bottomPaddleRange) {
