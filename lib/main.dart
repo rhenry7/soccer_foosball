@@ -115,11 +115,12 @@ class Paddle extends PositionComponent
     final screenSize = gameRef.size;
     position += event.localDelta;
     final wallCollision =
-        position.x <= 55 || position.x + (size.x - 4S5) >= screenSize.x;
+        position.x <= 55 || position.x + (size.x - 40) >= screenSize.x;
 
-    // final leftWall = position.y >= 0 || position.y + size.y <= screenSize.y;
+    final bottomPaddleRange = position.y <= 730 || position.y >= 800;
+
     //  Limit scroll past walls
-    if (wallCollision) {
+    if (wallCollision || bottomPaddleRange) {
       position -= event.localDelta;
     }
   }
