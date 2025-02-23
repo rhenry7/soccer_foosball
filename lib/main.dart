@@ -10,7 +10,8 @@ void main() {
   runApp(GameWidget(game: PongGame()));
 }
 
-class PongGame extends FlameGame with HasCollisionDetection, DragCallbacks {
+class PongGame extends FlameGame
+    with HasCollisionDetection, DragCallbacks, PanDetector {
   late Ball ball;
   late Paddle topPaddle;
   late Paddle bottomPaddle;
@@ -21,7 +22,6 @@ class PongGame extends FlameGame with HasCollisionDetection, DragCallbacks {
   Future<void> onLoad() async {
     final screenWidth = size.x;
     final screenHeight = size.y;
-
     // Create Ball
     ball = Ball()
       ..position = Vector2(screenWidth / 2, screenHeight / 2)
@@ -32,19 +32,22 @@ class PongGame extends FlameGame with HasCollisionDetection, DragCallbacks {
     // Create Top Paddle
     topPaddle = Paddle()
       ..position = Vector2(screenWidth / 2 - 50, 20)
-      ..size = Vector2(100, 20);
+      ..size = Vector2(100, 20)
+      ..anchor = Anchor.center;
     add(topPaddle);
 
     // Create Bottom Paddle
     bottomPaddle = Paddle()
       ..position = Vector2(screenWidth / 2 - 50, screenHeight - 40)
-      ..size = Vector2(100, 20);
+      ..size = Vector2(100, 20)
+      ..anchor = Anchor.center;
     add(bottomPaddle);
   }
 }
 
 class Ball extends PositionComponent with HasGameRef<PongGame> {
   Vector2 velocity = Vector2(0, 200);
+  bool debugMode = true;
 
   late Paint paint;
 
@@ -88,18 +91,17 @@ class Ball extends PositionComponent with HasGameRef<PongGame> {
   }
 }
 
-class Paddle extends PositionComponent with DragCallbacks {
+class Paddle extends PositionComponent
+    with HasGameRef<PongGame>, DragCallbacks {
   late Paint paint;
 
+  // bool debugMode = true;
+
   Paddle() {
-    paint = Paint()..color = Colors.white; // Set the ball color here
+    paint = Paint()..color = Colors.white; // Set the paddle color here
   }
 
   Rect myRect = const Offset(1.0, 2.0) & const Size(100.0, 10.0);
-
-  /// We will store all current circles into this map, keyed by the `pointerId`
-  /// of the event that created the circle.
-  //final Map<int, Trail> _trails = {};
 
   @override
   void render(Canvas canvas) {
@@ -108,41 +110,12 @@ class Paddle extends PositionComponent with DragCallbacks {
   }
 
   @override
-  void update(double dt) {
-    // Movement logic (can be updated with gestures later)
-  }
-
-  /// We will store all current circles into this map, keyed by the `pointerId`
-  /// of the event that created the circle.
-
-  @override
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-    this.size = size - Vector2(100, 75);
-    if (this.size.x < 100 || this.size.y < 100) {
-      this.size = size * 0.9;
-    }
-  }
-
-  @override
-  void onDragStart(DragStartEvent event) {
-    super.onDragStart(event);
-    priority = 10;
-  }
-
-  @override
   void onDragUpdate(DragUpdateEvent event) {
+    final screenSize = gameRef.size;
     position += event.localDelta;
-  }
-
-  @override
-  void onDragEnd(DragEndEvent event) {
-    super.onDragEnd(event);
-    priority = 0;
-  }
-
-  @override
-  void onDragCancel(DragCancelEvent event) {
-    super.onDragCancel(event);
+    // Bounce off walls
+    if (position.x <= 0 || position.x + size.x >= screenSize.x) {
+      position -= event.localDelta;
+    }
   }
 }
